@@ -30,7 +30,6 @@ FROM scratch
 
 WORKDIR /
 
-
 COPY --from=0 /main /main
 
 COPY --from=0 /etc/passwd /etc/passwd
