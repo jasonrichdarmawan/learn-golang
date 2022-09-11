@@ -7,14 +7,15 @@ FROM golang:1.19-alpine
 
 WORKDIR /app
 
-# Download necessary Go modules
-COPY go.mod ./
+# # Download necessary Go modules
+# COPY go.mod ./
 # COPY go.sum ./
 # RUN go mod download
 
 COPY *.go ./
 
-RUN go build -o /main
+# GO111MODULE Controls whether the go command runs in module-aware mode or GOPATH mode.
+RUN GO111MODULE=off go build -o /main
 
 RUN adduser \
     -h "/dev/null" \
