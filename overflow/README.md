@@ -4,5 +4,7 @@ If you can't run compiled Go code in `scratch` image. Try to:
 
 Note:
 1. Not sure why, but running compiled Go code in `alpine:3.16` and `scratch` image will have different behavior:
-   1. In `scratch` image, if a user send a request larger than the `maxMemory`, the `ParseMultipartForm` will return `non-nil err`.
-   2. In `alpine:3.16` image, `ParseMultipartForm` will ignore `maxMemory`.
+   1. In `scratch` image, if a user send a request larger than the `maxMemory`, the `ParseMultipartForm` will return `non-nil error`.
+   2. In `alpine:3.16` image, `ParseMultipartForm` will not return `non-nil error`. This is because `ParseMultipartForm` will store the remainder in temporary filels.
+   
+   The solution is to create `/tmp` folder. Therefore, make sure to create unit tests. The conclusion is different environment, different behavior.
