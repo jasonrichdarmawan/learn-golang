@@ -12,6 +12,7 @@ import (
 type response1 struct {
 	Page   int
 	Fruits []string
+	Names  [][]byte
 }
 
 // Only exported fields will be encoded/decoded in JSON.
@@ -19,6 +20,22 @@ type response1 struct {
 type response2 struct {
 	Page   int      `json:"page"`
 	Fruits []string `json:"fruits"`
+}
+
+func (r response1) MarshalJSON() ([]byte, error) {
+	var names []string
+	for _, n := range r.Names {
+		names = append(names, string(n))
+	}
+	return json.Marshal(struct {
+		Page   int
+		Fruits []string
+		Names  []string
+	}{
+		Page:   r.Page,
+		Fruits: r.Fruits,
+		Names:  names,
+	})
 }
 
 func main() {
@@ -52,9 +69,10 @@ func main() {
 	// and will by default use those names as the JSON keys.
 	res1D := &response1{
 		Page:   1,
-		Fruits: []string{"apple", "peach", "pear"}}
-	res1B, _ := json.Marshal(res1D)
-	fmt.Println(string(res1B))
+		Fruits: []string{"apple", "peach", "pear"},
+		Names:  [][]byte{[]byte("jack"), []byte("james")}}
+	res1B, _ := res1D.MarshalJSON()
+	fmt.Println("res1B", string(res1B))
 
 	// You can use tags on struct field declarations to customize the encoded JSON key names.
 	// Check the definition of response2 above to see an example of such tags.
