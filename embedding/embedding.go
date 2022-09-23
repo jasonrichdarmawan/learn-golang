@@ -2,10 +2,12 @@ package embedding
 
 import "fmt"
 
-type Parent struct{}
+type Parent struct {
+	Name string
+}
 
 func (p *Parent) parentMethod() {
-	fmt.Println("parent method")
+	fmt.Println(p.Name)
 }
 
 type Child struct {
