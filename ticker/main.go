@@ -1,37 +1,39 @@
+// Reference: https://gobyexample.com/tickers
+// Timers are for when you want to do something once in the future -
+// tickers are for when you want to do something repeatedly at regular intervals.
+// Here’s an example of a ticker that ticks periodically until we stop it.
 package main
 
 import (
 	"fmt"
-	"sync"
 	"time"
 )
 
+// When we run this program the ticker should tick 3 times before we stop it.
 func main() {
-	cache := NewCacheWithExpiry()
-	cache.addItem("key1", time.Now().Add(time.Second*5))
-	cache.addItem("key2", time.Now().Add(time.Second*3))
 
-	time.Sleep(time.Second * 10)
-}
+	// Tickers use a similar mechanism to timers: a channel that is sent values.
+	// Here we’ll use the select builtin on the channel to
+	// await the values as they arrive every 500ms.
+	ticker := time.NewTicker(500 * time.Millisecond)
+	done := make(chan bool)
 
-type customCacheWithExpiry struct {
-	addrs sync.Map
-}
-
-func NewCacheWithExpiry() *customCacheWithExpiry {
-	return &customCacheWithExpiry{
-		addrs: sync.Map{},
-	}
-}
-
-func (c *customCacheWithExpiry) addItem(key string, val time.Time) {
-	fmt.Printf("storing key %s which expires at %s\n", key, val)
-	c.addrs.Store(key, val)
-
-	ticker := time.NewTicker(val.Sub(time.Now()))
 	go func() {
-		<-ticker.C
-		fmt.Printf("deleting key %s\n", key)
-		c.addrs.Delete(key)
+		for {
+			select {
+			case <-done:
+				return
+			case t := <-ticker.C:
+				fmt.Println("Tick at", t)
+			}
+		}
 	}()
+
+	time.Sleep(1600 * time.Millisecond)
+	// Tickers can be stopped like timers.
+	// Once a ticker is stopped it won’t receive any more values on
+	// its channel. We’ll stop ours after 1600ms.
+	ticker.Stop()
+	done <- true
+	fmt.Println("Ticker stopped")
 }

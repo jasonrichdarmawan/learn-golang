@@ -5,4 +5,5 @@ use (
 	./generate
 	./subpackages
 	./test
+	./ws
 )
