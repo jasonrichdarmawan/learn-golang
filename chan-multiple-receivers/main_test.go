@@ -48,13 +48,18 @@ func TestChanRaceCondition(t *testing.T) {
 	for i := 0; i < readerSize; i++ {
 		go func(key int) {
 			for {
-				payload, ok := <-c
-				if !ok {
-					log.Printf("go%d: chan is closed", key)
-					return
+				select {
+				case payload, ok := <-c:
+					if !ok {
+						log.Printf("go%d: chan is closed", key)
+						return
+					}
+					log.Printf("go%d: %d", key, payload)
+					mux.AddInt(payload)
+				default:
+					log.Printf("go%d: empty channel", key)
+					return // this return statement will break the for statement.
 				}
-				log.Printf("go%d: %d", key, payload)
-				mux.AddInt(payload)
 			}
 		}(i)
 	}
