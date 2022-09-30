@@ -47,8 +47,8 @@ func main() {
 		select {
 		case <-done:
 			return
-		case t := <-ticker.C:
-			err := c.WriteMessage(websocket.TextMessage, []byte(t.String()))
+		case <-ticker.C:
+			err := c.WriteMessage(websocket.TextMessage, []byte("world"))
 			if err != nil {
 				log.Println("write:", err)
 				return

@@ -1,9 +1,11 @@
 go 1.19
 
 use (
+	./chan-multiple-receivers
 	./embedding
 	./generate
 	./subpackages
 	./test
-	./ws
+	./ws-chat
+	./ws-echo
 )
