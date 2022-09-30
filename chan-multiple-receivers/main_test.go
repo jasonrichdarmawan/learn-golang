@@ -4,6 +4,7 @@ import (
 	"log"
 	"sync"
 	"testing"
+	"time"
 )
 
 type MapMux struct {
@@ -35,6 +36,7 @@ func TestChanRaceCondition(t *testing.T) {
 	for i := 0; i < writerSize; i++ {
 		go func(key int) {
 			for y := chanSize / writerSize * key; y < chanSize/writerSize*(key+1); y++ {
+				time.Sleep(10 * time.Millisecond)
 				c <- y
 			}
 		}(i)
@@ -56,8 +58,10 @@ func TestChanRaceCondition(t *testing.T) {
 					}
 					log.Printf("go%d: %d", key, payload)
 					mux.AddInt(payload)
-				default:
-					log.Printf("go%d: empty channel", key)
+				case <-time.After(1 * time.Second):
+					// if after 1s there is no new data from the channel
+					// just kill the goroutine to save resources.
+					log.Printf("go%d: empty channel for more than 1s, gracefully kill this goroutine", key)
 					return // this return statement will break the for statement.
 				}
 			}
